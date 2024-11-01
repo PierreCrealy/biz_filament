@@ -6,6 +6,9 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -26,7 +29,28 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                //
+
+                Section::make()
+                    ->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->maxLength(10),
+                        TextInput::make('email')
+                            ->required()
+                            ->email()
+                            ->disabled(function (?User $record = null){
+                                return $record !== null;
+                            }),
+                        TextInput::make('password')
+                            ->password()
+                            ->revealable()
+                            ->visible(function (?User $record = null){
+                                return $record === null;
+                            }),
+                        DatePicker::make('email_verified_at')
+                            ->maxDate(now()),
+                    ]),
+
             ]);
     }
 
