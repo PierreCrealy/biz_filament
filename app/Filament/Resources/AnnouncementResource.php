@@ -2,14 +2,13 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AvailabilityResource\RelationManagers\AvailabilitiesRelationManager;
-use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
+use App\Filament\Resources\AnnouncementResource\Pages;
+use App\Filament\Resources\AnnouncementResource\RelationManagers;
+use App\Models\Announcement;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,44 +16,35 @@ use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class UserResource extends Resource
+class AnnouncementResource extends Resource
 {
-    protected static ?string $model = User::class;
+    protected static ?string $model = Announcement::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-    protected static ?string $navigationGroup = 'Admin';
-
-    protected  static ?string $activeNavigationIcon = 'heroicon-s-document-text';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-
                 Section::make()
+
                     ->schema([
-                        TextInput::make('name')
+                        TextInput::make('title')
                             ->required()
-                            ->maxLength(10),
-                        TextInput::make('lastname')
+                            ->maxLength(30),
+                        TextInput::make('Description')
                             ->required()
-                            ->maxLength(10),
+                            ->maxLength(255),
                         TextInput::make('email')
                             ->required()
                             ->email()
                             ->disabled(function (?User $record = null){
                                 return $record !== null;
                             }),
-                        Select::make('role')
-                            ->relationship('role', 'label')
-                            ->multiple()
-                            ->preload(),
                         TextInput::make('password')
                             ->password()
                             ->revealable()
@@ -72,31 +62,17 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('title')
                     ->searchable(),
-                TextColumn::make('role.label')
-                    ->badge()
+                TextColumn::make('description')
                     ->searchable(),
-                TextColumn::make('email'),
-                IconColumn::make('email_verified_at')
-                    ->label('Verified')
-                    ->getStateUsing(function ($record): bool {
-                        return (bool) $record->email_verified_at;
-                    })
-                    ->trueColor('success')
-                    ->falseColor('warning'),
+                TextColumn::make('user.name')
+                    ->badge(),
                 TextColumn::make('created_at')
                     ->since()
                     ->sortable()
             ])
             ->filters([
-                Filter::make('verified')
-                    ->query(function (Builder $query): Builder {
-                        return $query->whereNotNull('email_verified_at');
-                    }),
-                SelectFilter::make('role')
-                    ->relationship('role', 'label')
-                    ->preload()
 
             ])
             ->actions([
@@ -112,16 +88,16 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            AvailabilitiesRelationManager::class,
+            //
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+            'index' => Pages\ListAnnouncements::route('/'),
+            'create' => Pages\CreateAnnouncement::route('/create'),
+            'edit' => Pages\EditAnnouncement::route('/{record}/edit'),
         ];
     }
 }

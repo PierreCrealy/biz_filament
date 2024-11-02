@@ -5,6 +5,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource;
 use App\Models\User;
 use Filament\Actions;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Wizard\Step;
@@ -40,11 +41,14 @@ class CreateUser extends CreateRecord
                     TextInput::make('name')
                         ->required()
                         ->maxLength(10),
+                    TextInput::make('lastname')
+                        ->required()
+                        ->maxLength(10),
                     TextInput::make('email')
                         ->required()
                         ->email()
                 ]),
-            Step::make('Pssword')
+            Step::make('Password')
                 ->schema([
                     TextInput::make('password')
                         ->password()
@@ -52,6 +56,10 @@ class CreateUser extends CreateRecord
                 ]),
             Step::make('Validation')
                 ->schema([
+                    Select::make('role')
+                        ->relationship('role', 'label')
+                        ->multiple()
+                        ->preload(),
                     Toggle::make('auto_verified')
                         ->label('Validate user email')
                         ->default(false)
